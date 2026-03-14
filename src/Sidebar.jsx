@@ -13,8 +13,8 @@ const Sidebar = ({ user, active, setActive, logout }) => {
         <div style={{ background: "#0a2463", minHeight: "100vh", width: 238, flexShrink: 0, display: "flex", flexDirection: "column", position: "sticky", top: 0, height: "100vh" }}>
             <div style={{ padding: "18px 16px 14px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <div style={{ width: 36, height: 36, borderRadius: 10, background: "rgba(255,255,255,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}><Ic n="shield" s={18} c="#fff" /></div>
-                    <div><div style={{ fontFamily: "Outfit,sans-serif", color: "#fff", fontWeight: 800, fontSize: 16, letterSpacing: "-0.3px" }}>PARIVESH</div><div style={{ color: "rgba(255,255,255,0.45)", fontSize: 10, fontWeight: 500 }}>VERSION 3.0</div></div>
+                    <div style={{ width: 40, height: 40, borderRadius: 10, background: "transparent", display: "flex", alignItems: "center", justifyContent: "center" }}><img src="/moefcc_logo.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} /></div>
+                    <div><div style={{ fontFamily: "Outfit,sans-serif", color: "#fff", fontWeight: 800, fontSize: 16, letterSpacing: "-0.3px" }}>PARI✓ESH</div><div style={{ color: "rgba(255,255,255,0.45)", fontSize: 10, fontWeight: 500 }}>VERSION 3.0</div></div>
                 </div>
             </div>
             <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>

@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { SECTORS, INITIAL_APPS } from './data.js';
+import { useState, useEffect } from "react";
+import { SECTORS } from './data.js';
+import { apiListApps, apiUpdateApp, apiPayFees, apiCreateApp, apiListNotifications, apiMarkAllNotifsRead, clearTokens, getSavedUser, apiLogin } from './api.js';
 import Ic from './Ic.jsx';
 import Login from './Login.jsx';
 import LandingPage from './LandingPage.jsx';
@@ -53,21 +54,229 @@ globalStyle.textContent = `
 `;
 document.head.appendChild(globalStyle);
 
+// ── Profile Settings Component ───────────────────────────────────────────────
+const ProfileSettings = ({ user, setView }) => {
+    return (
+        <div className="fade-in" style={{ maxWidth: 500, margin: "0 auto", background: "#f8fafc", borderRadius: 24, padding: "20px 0" }}>
+            <div style={{ display: "flex", alignItems: "center", padding: "0 20px", marginBottom: 30 }}>
+                <div style={{ cursor: "pointer", padding: "5px" }} onClick={() => setView('dashboard')}>
+                    <Ic n="arrL" s={22} c="#0a2463" />
+                </div>
+                <h2 style={{ flex: 1, textAlign: "center", fontSize: 18, fontWeight: 700, color: "#0a2463", marginRight: 32 }}>Profile Settings</h2>
+            </div>
+
+            {/* Avatar Section */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 30 }}>
+                <div style={{ position: "relative", marginBottom: 16 }}>
+                    <div style={{ width: 100, height: 100, borderRadius: "50%", border: "3px solid #007AFF", display: "flex", alignItems: "center", justifyContent: "center", background: "#e2e8f0" }}>
+                        <Ic n="user" s={44} c="#94a3b8" />
+                    </div>
+                    <div style={{ position: "absolute", bottom: 0, right: 0, width: 32, height: 32, background: "#0a2463", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", border: "2px solid #fff" }}>
+                        <Ic n="edit" s={14} c="#fff" />
+                    </div>
+                </div>
+                <h3 style={{ fontSize: 22, fontWeight: 700, color: "#0a2463", marginBottom: 6 }}>{user.email.split('@')[0]}</h3>
+                <div style={{ fontSize: 13, color: "#64748b", fontWeight: 500, marginBottom: 6 }}>
+                    <span style={{ background: "#e0f2fe", color: "#0284c7", padding: "2px 8px", borderRadius: 12, fontSize: 10, fontWeight: 800, marginRight: 8 }}>LEVEL 8</span>
+                    Senior {user.role === 'admin' ? 'Administrator' : 'Officer'}
+                </div>
+                <div style={{ fontSize: 12, color: "#94a3b8" }}>{user.email}</div>
+            </div>
+
+            {/* Stats Card */}
+            <div style={{ background: "#0a2463", borderRadius: 24, padding: "24px 0", display: "flex", justifyContent: "space-evenly", margin: "0 20px 34px", color: "#fff" }}>
+                <div style={{ textAlign: "center", flex: 1 }}>
+                    <div style={{ fontSize: 22, fontWeight: 700, color: "#3a86ff", marginBottom: 4 }}>142</div>
+                    <div style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: 1 }}>Projects</div>
+                </div>
+                <div style={{ width: 1, background: "rgba(255,255,255,0.15)" }}></div>
+                <div style={{ textAlign: "center", flex: 1 }}>
+                    <div style={{ fontSize: 22, fontWeight: 700, color: "#3a86ff", marginBottom: 4 }}>2.4k</div>
+                    <div style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: 1 }}>Votes</div>
+                </div>
+                <div style={{ width: 1, background: "rgba(255,255,255,0.15)" }}></div>
+                <div style={{ textAlign: "center", flex: 1 }}>
+                    <div style={{ fontSize: 22, fontWeight: 700, color: "#3a86ff", marginBottom: 4 }}>12</div>
+                    <div style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: 1 }}>Awards</div>
+                </div>
+            </div>
+
+            {/* Menus */}
+            <div style={{ padding: "0 20px" }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 1, marginBottom: 12, paddingLeft: 8 }}>Account Workspace</div>
+                <div style={{ background: "#fff", borderRadius: 20, overflow: "hidden", border: "1px solid #e2e8f0", marginBottom: 24 }}>
+                    {[
+                        { t: "Personal Information", d: "Bio, contact, and professional role", i: "user" },
+                        { t: "Account Security", d: "Password, 2FA, and sessions", i: "shield" },
+                        { t: "Notification Preferences", d: "Project updates and community alerts", i: "bell" },
+                    ].map((m, idx) => (
+                        <div key={idx} style={{ padding: "18px 20px", display: "flex", alignItems: "center", gap: 16, borderBottom: idx < 2 ? "1px solid #f1f5f9" : "none", cursor: "pointer" }}>
+                            <div style={{ width: 40, height: 40, background: "#f8fafc", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", color: "#0a2463" }}><Ic n={m.i} s={18} /></div>
+                            <div style={{ flex: 1 }}>
+                                <div style={{ fontSize: 14, fontWeight: 700, color: "#0a2463", marginBottom: 3 }}>{m.t}</div>
+                                <div style={{ fontSize: 12, color: "#94a3b8" }}>{m.d}</div>
+                            </div>
+                            <div style={{ color: "#cbd5e1", fontWeight: 700, fontSize: 16 }}>›</div>
+                        </div>
+                    ))}
+                </div>
+
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 1, marginBottom: 12, paddingLeft: 8 }}>Experience Settings</div>
+                <div style={{ background: "#fff", borderRadius: 20, overflow: "hidden", border: "1px solid #e2e8f0" }}>
+                    <div style={{ padding: "18px 20px", display: "flex", alignItems: "center", gap: 16, cursor: "pointer" }}>
+                        <div style={{ width: 40, height: 40, background: "#f8fafc", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", color: "#0a2463" }}><Ic n="cog" s={18} /></div>
+                        <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: 14, fontWeight: 700, color: "#0a2463", marginBottom: 3 }}>AR Display Settings</div>
+                            <div style={{ fontSize: 12, color: "#94a3b8" }}>Lidar accuracy and mesh rendering</div>
+                        </div>
+                        <div style={{ color: "#cbd5e1", fontWeight: 700, fontSize: 16 }}>›</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 // ── MAIN APP ──────────────────────────────────────────────────────────────────
 export default function App() {
     const [user, setUser] = useState(null);
     const [page, setPage] = useState("landing"); // landing | login | dashboard
     const [view, setView] = useState("dashboard");
-    const [apps, setApps] = useState(INITIAL_APPS);
+    const [apps, setApps] = useState([]);
     const [notif, setNotif] = useState(null);
+    const [notifications, setNotifications] = useState([]);
+    const [unreadCount, setUnreadCount] = useState(0);
     const notify = msg => { setNotif(msg); setTimeout(() => setNotif(null), 3200); };
-    const upd = (id, changes) => setApps(p => p.map(a => a.id === id ? { ...a, ...changes } : a));
-    const addApp = a => { setApps(p => [a, ...p]); setView("myApps"); };
 
-    if (!user && page === "landing") return <LandingPage onLogin={() => setPage("login")} />;
-    if (!user) return <Login onLogin={u => { setUser(u); setPage("dashboard"); setView("dashboard"); }} />;
+    // Restore session on mount
+    useEffect(() => {
+        const saved = getSavedUser();
+        if (saved) {
+            setUser(saved);
+            setPage("dashboard");
+        }
+    }, []);
+
+    // Fetch apps & notifications when user logs in
+    useEffect(() => {
+        if (user) {
+            apiListApps().then(data => {
+                // Map backend fields to frontend format for compatibility
+                const mapped = data.map(a => ({
+                    id: a.app_id,
+                    dbId: a.id,
+                    proponent: a.company || a.proponent,
+                    sector: a.sector,
+                    category: a.category,
+                    project: a.project,
+                    status: a.status,
+                    date: a.created_at ? a.created_at.split('T')[0] : '',
+                    fees: a.fees,
+                    feesPaid: a.fees_paid,
+                    docs: (a.documents || []).map(d => d.name),
+                    gist: a.gist || '',
+                    mom: a.mom || '',
+                    locked: a.locked,
+                    edsRemarks: a.eds_remarks || '',
+                    reviewer: a.reviewer || '',
+                }));
+                setApps(mapped);
+            }).catch(e => console.error('Failed to fetch apps:', e));
+
+            apiListNotifications().then(data => {
+                setNotifications(data.notifications || []);
+                setUnreadCount(data.unread_count || 0);
+            }).catch(e => console.error('Failed to fetch notifications:', e));
+        }
+    }, [user]);
+
+    const upd = async (id, changes) => {
+        // Find the backend DB id
+        const app = apps.find(a => a.id === id);
+        if (!app) return;
+        try {
+            // Map frontend field names to backend
+            const backendChanges = {};
+            if ('feesPaid' in changes) {
+                await apiPayFees(app.dbId);
+                changes.feesPaid = true;
+            } else {
+                if ('status' in changes) backendChanges.status = changes.status;
+                if ('gist' in changes) backendChanges.gist = changes.gist;
+                if ('mom' in changes) backendChanges.mom = changes.mom;
+                if ('edsRemarks' in changes) backendChanges.eds_remarks = changes.edsRemarks;
+                if ('locked' in changes) backendChanges.locked = changes.locked;
+                if (Object.keys(backendChanges).length > 0) {
+                    await apiUpdateApp(app.dbId, backendChanges);
+                }
+            }
+            setApps(p => p.map(a => a.id === id ? { ...a, ...changes } : a));
+        } catch (e) {
+            console.error('Update failed:', e);
+            notify('Update failed: ' + e.message);
+        }
+    };
+
+    const addApp = async (a) => {
+        try {
+            const created = await apiCreateApp({
+                project: a.project,
+                sector: a.sector,
+                category: a.category,
+                fees: a.fees || 0,
+                fees_paid: a.feesPaid || false,
+                documents: a.docs || [],
+            });
+            const mapped = {
+                id: created.app_id,
+                dbId: created.id,
+                proponent: created.company || created.proponent,
+                sector: created.sector,
+                category: created.category,
+                project: created.project,
+                status: created.status,
+                date: created.created_at ? created.created_at.split('T')[0] : '',
+                fees: created.fees,
+                feesPaid: created.fees_paid,
+                docs: (created.documents || []).map(d => d.name),
+                gist: '', mom: '', locked: false, edsRemarks: '', reviewer: '',
+            };
+            setApps(p => [mapped, ...p]);
+            setView("myApps");
+        } catch (e) {
+            console.error('Create app failed:', e);
+            notify('Failed to create application: ' + e.message);
+        }
+    };
+
+    const handleLogin = (u) => {
+        setUser(u);
+        setPage("dashboard");
+        setView("dashboard");
+    };
+
+    const handleLogout = () => {
+        clearTokens();
+        setUser(null);
+        setApps([]);
+        setNotifications([]);
+        setPage("landing");
+        setView("dashboard");
+    };
+
+    const handleMarkAllRead = async () => {
+        try {
+            await apiMarkAllNotifsRead();
+            setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+            setUnreadCount(0);
+        } catch (e) { console.error('Mark all read failed:', e); }
+    };
+
+    if (!user && page === "landing") return <LandingPage onLogin={(u) => { if (u && u.role) handleLogin(u); else setPage("login"); }} />;
+    if (!user) return <Login onLogin={handleLogin} />;
 
     const render = () => {
+        if (view === "profile") return <ProfileSettings user={user} setView={setView} />;
         const { role } = user;
         if (role === "admin") {
             if (view === "dashboard") return <AdminHome apps={apps} />;
@@ -121,19 +330,48 @@ export default function App() {
 
     return (
         <div style={{ display: "flex", minHeight: "100vh", background: "#f0f4f8" }}>
-            <Sidebar user={user} active={view} setActive={setView} logout={() => { setUser(null); setPage("landing"); setView("dashboard"); }} />
+            <Sidebar user={user} active={view} setActive={setView} logout={handleLogout} />
             <main style={{ flex: 1, padding: 26, overflowY: "auto", minWidth: 0 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22, flexWrap: "wrap", gap: 8 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 12, color: "#64748b", fontWeight: 500 }}>
-                        <Ic n="shield" s={13} c="#1e56c2" />
-                        <span style={{ color: "#1e56c2", fontWeight: 700 }}>PARIVESH 3.0</span>
-                        <span>/</span><span style={{ textTransform: "capitalize" }}>{user.role}</span>
-                        <span>/</span><span style={{ textTransform: "capitalize" }}>{view}</span>
+                {view !== "profile" && (
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 30, flexWrap: "wrap", gap: 14 }}>
+                        <div>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                                <div style={{width: 38, height: 38, borderRadius: 8, background: "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center"}}><Ic n="dash" s={18} c="#64748b" /></div>
+                                <h2 style={{ fontSize: 24, color: "#0a2463", fontWeight: 800, letterSpacing: "-0.5px" }}>Hello, {user.email.split('@')[0]}</h2>
+                            </div>
+                            <div style={{ fontSize: 13, color: "#64748b", fontWeight: 500, marginLeft: 46 }}>Ready to build today?</div>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                            <div className="login-dropdown-wrapper">
+                                <div style={{ position: "relative", width: 44, height: 44, borderRadius: "50%", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid #e2e8f0", cursor: "pointer", boxShadow: "0 2px 5px rgba(0,0,0,0.02)" }}>
+                                    <Ic n="bell" s={20} c="#0a2463" />
+                                    <div style={{ position: "absolute", top: -2, right: -2, background: "#ef4444", color: "#fff", fontSize: 10, fontWeight: 800, width: 18, height: 18, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid #fff" }}>{unreadCount}</div>
+                                </div>
+                                <div className="login-dropdown" style={{ right: 8, left: "auto", transform: "none", minWidth: 320, padding: 20, borderRadius: 16, border: "none", boxShadow: "0 10px 40px rgba(0,0,0,0.1)" }}>
+                                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16, paddingBottom: 12, borderBottom: "1px solid #e2e8f0", alignItems: "baseline" }}>
+                                        <span style={{ fontWeight: 800, fontSize: 16 }}>Notifications</span>
+                                        <span style={{ color: "#3a86ff", fontSize: 12, cursor: "pointer", fontWeight: 700 }} onClick={handleMarkAllRead}>Mark all as read</span>
+                                    </div>
+                                    {notifications.length === 0 && <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: 13, padding: '16px 0' }}>No notifications</div>}
+                                    {notifications.slice(0, 5).map((n, idx) => (
+                                        <div key={n.id || idx} style={{ display: "flex", gap: 14, alignItems: "flex-start", marginBottom: 16 }}>
+                                            <div style={{ width: 36, height: 36, borderRadius: 10, background: n.category === 'success' ? '#d1fae5' : '#dbeafe', flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", color: n.category === 'success' ? '#059669' : '#2563eb' }}><Ic n={n.category === 'success' ? 'ok' : 'file'} s={18} /></div>
+                                            <div style={{ flex: 1 }}>
+                                                <div style={{ fontWeight: 700, fontSize: 14, color: "#0f172a" }}>{n.title}</div>
+                                                <div style={{ fontSize: 12, color: "#64748b" }}>{n.message}</div>
+                                                <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 4 }}>{n.created_at ? new Date(n.created_at).toLocaleString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }) : ''}</div>
+                                            </div>
+                                            {!n.is_read && <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#3a86ff", marginTop: 6 }} />}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            <div style={{ width: 44, height: 44, borderRadius: 12, background: "#007AFF", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 4px 10px rgba(0, 122, 255, 0.3)", transition: "all 0.2s" }} onClick={() => setView('profile')}>
+                                <Ic n="user" s={22} c="#fff" />
+                            </div>
+                        </div>
                     </div>
-                    <div style={{ padding: "5px 13px", background: "#fff", borderRadius: 9, border: "1px solid #dce3ef", fontSize: 12, color: "#64748b", fontWeight: 500 }}>
-                        {new Date().toLocaleDateString("en-IN", { weekday: "short", year: "numeric", month: "short", day: "numeric" })}
-                    </div>
-                </div>
+                )}
                 {render()}
             </main>
             {notif && <div className="notif"><span style={{ color: "#06d6a0", fontSize: 18 }}>●</span>{notif}<span style={{ marginLeft: "auto", cursor: "pointer", opacity: 0.5, fontSize: 16 }} onClick={() => setNotif(null)}>✕</span></div>}

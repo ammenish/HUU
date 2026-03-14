@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Ic from './Ic.jsx';
 import { Badge, StatCard } from './helpers.jsx';
+import { apiDownloadDocument } from './api.js';
 
 export const MoMHome = ({ apps }) => (
     <div className="fade-in">
@@ -45,8 +46,8 @@ export const MoMEd = ({ apps, upd, notify }) => {
                         <div style={{ padding: "9px 13px", background: "#f0fdf4", borderRadius: 8, border: "1px solid #a7f3d0", marginBottom: 12, fontSize: 13, color: "#059669", fontWeight: 600, display: "flex", alignItems: "center", gap: 7 }}><Ic n="lock" s={13} />Finalized & Locked – no further edits permitted</div>
                         <pre style={{ background: "#f8fafc", borderRadius: 10, padding: 16, fontSize: 12, lineHeight: 1.7, color: "#0f172a", overflowY: "auto", maxHeight: 340, whiteSpace: "pre-wrap", border: "1px solid #dce3ef", fontFamily: "'Courier New',monospace" }}>{app.mom}</pre>
                         <div style={{ display: "flex", gap: 9, marginTop: 12 }}>
-                            <button className="btn btn-secondary btn-sm" onClick={() => notify("MoM.docx downloaded")}><Ic n="dl" s={12} />Download .docx</button>
-                            <button className="btn btn-secondary btn-sm" onClick={() => notify("MoM.pdf downloaded")}><Ic n="dl" s={12} />Download .pdf</button>
+                            <button className="btn btn-secondary btn-sm" onClick={() => apiDownloadDocument(app.dbId, 'mom', 'docx').catch(e => console.error(e))}><Ic n="dl" s={12} />Download .docx</button>
+                            <button className="btn btn-secondary btn-sm" onClick={() => apiDownloadDocument(app.dbId, 'mom', 'pdf').catch(e => console.error(e))}><Ic n="dl" s={12} />Download .pdf</button>
                         </div>
                     </div> : <div>
                         {tab === "gist" && <>
@@ -55,7 +56,7 @@ export const MoMEd = ({ apps, upd, notify }) => {
                             <div style={{ display: "flex", gap: 9, marginTop: 12 }}>
                                 <button className="btn btn-primary" onClick={savGist}><Ic n="ok" s={14} />Save Gist</button>
                                 {!app.mom && <button className="btn btn-success" onClick={toMoM}><Ic n="doc" s={14} />Convert to MoM</button>}
-                                <button className="btn btn-secondary" onClick={() => notify("Gist.docx downloaded")}><Ic n="dl" s={12} />Download</button>
+                                <button className="btn btn-secondary" onClick={() => apiDownloadDocument(app.dbId, 'gist', 'docx').catch(e => console.error(e))}><Ic n="dl" s={12} />Download</button>
                             </div>
                         </>}
                         {tab === "mom" && <>
@@ -82,7 +83,7 @@ export const Finalized = ({ apps, notify }) => {
                 {fin.map(a => <div key={a.id} className="card" style={{ padding: 22 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 10, marginBottom: 14 }}>
                         <div><div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}><span style={{ fontFamily: "monospace", fontWeight: 700, color: "#1e56c2", fontSize: 12 }}>{a.id}</span><span className="badge" style={{ background: "#ecfdf5", color: "#059669" }}><Ic n="lock" s={10} />Finalized</span></div><div style={{ fontWeight: 700, color: "#0a2463", fontSize: 15 }}>{a.project}</div><div style={{ fontSize: 12, color: "#64748b" }}>{a.sector} · {a.proponent}</div></div>
-                        <div style={{ display: "flex", gap: 8 }}><button className="btn btn-secondary btn-sm" onClick={() => notify("MoM.docx downloaded")}><Ic n="dl" s={12} />.docx</button><button className="btn btn-secondary btn-sm" onClick={() => notify("MoM.pdf downloaded")}><Ic n="dl" s={12} />.pdf</button></div>
+                        <div style={{ display: "flex", gap: 8 }}><button className="btn btn-secondary btn-sm" onClick={() => apiDownloadDocument(a.dbId, 'mom', 'docx').catch(e => console.error(e))}><Ic n="dl" s={12} />.docx</button><button className="btn btn-secondary btn-sm" onClick={() => apiDownloadDocument(a.dbId, 'mom', 'pdf').catch(e => console.error(e))}><Ic n="dl" s={12} />.pdf</button></div>
                     </div>
                     <div style={{ background: "#f8fafc", borderRadius: 9, padding: "12px 14px", border: "1px solid #dce3ef", maxHeight: 110, overflow: "hidden", position: "relative" }}>
                         <pre style={{ fontSize: 11, color: "#64748b", lineHeight: 1.6, whiteSpace: "pre-wrap", fontFamily: "'Courier New',monospace" }}>{(a.mom || "").slice(0, 260)}…</pre>

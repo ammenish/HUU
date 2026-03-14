@@ -7,7 +7,7 @@ export const AdminHome = ({ apps }) => {
     const s = (st) => apps.filter(a => a.status === st).length;
     return (
         <div className="fade-in">
-            <div style={{ marginBottom: 24 }}><h1 style={{ fontFamily: "Outfit,sans-serif", fontSize: 24, fontWeight: 800, color: "#0a2463" }}>System Overview</h1><p style={{ color: "#64748b", fontSize: 14 }}>PARIVESH 3.0 — Administrative Control Center</p></div>
+            <div style={{ marginBottom: 24 }}><h1 style={{ fontFamily: "Outfit,sans-serif", fontSize: 24, fontWeight: 800, color: "#0a2463" }}>System Overview</h1><p style={{ color: "#64748b", fontSize: 14 }}>PARI✓ESH 3.0 — Administrative Control Center</p></div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(190px,1fr))", gap: 14, marginBottom: 22 }}>
                 <StatCard label="Total Applications" val={apps.length} icon="file" color="#1e56c2" sub="All statuses" />
                 <StatCard label="Under Scrutiny" val={s("Under Scrutiny")} icon="eye" color="#d97706" sub="Awaiting review" />

@@ -8,6 +8,7 @@ const landingCSS = `
   /* ── Animations ── */
   @keyframes slideUpFade { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes bounceIcon { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+  @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.5; } 100% { transform: scale(1); opacity: 1; } }
   
   .animate-slide-up { animation: slideUpFade 0.7s cubic-bezier(0.16,1,0.3,1) both; }
   .delay-1 { animation-delay: 0.15s; }
@@ -43,6 +44,14 @@ const landingCSS = `
   .nav-actions { display: flex; align-items: center; gap: 16px; margin-left: 10px; }
   .login-btn { color: #05c46b; font-weight: 600; cursor: pointer; border: none; background: transparent; font-size: 14px; font-family: inherit; }
   .reg-btn { background: #05c46b; color: #fff; border: none; padding: 10px 24px; border-radius: 20px; font-weight: 600; font-size: 14px; cursor: pointer; font-family: inherit; }
+  
+  /* ── Dropdown Navbar logic ── */
+  .login-dropdown-wrapper { position: relative; display: inline-block; padding: 10px 0; }
+  .login-dropdown { display: none; position: absolute; top: calc(100% - 5px); left: 50%; transform: translateX(-50%); background: #fff; border-radius: 16px; box-shadow: 0 6px 30px rgba(0,0,0,0.12); padding: 10px 0; z-index: 200; min-width: 180px; animation: slideUpFade 0.2s ease forwards; }
+  .login-dropdown::before { content: ''; position: absolute; top: -6px; left: 50%; transform: translateX(-50%) rotate(45deg); width: 14px; height: 14px; background: #fff; box-shadow: -2px -2px 4px rgba(0,0,0,0.02); }
+  .login-dropdown-wrapper:hover .login-dropdown { display: block; }
+  .dropdown-item { position: relative; padding: 12px 24px; cursor: pointer; color: #064e2b; font-weight: 600; font-size: 15px; transition: all 0.2s; display: flex; align-items: center; gap: 12px; z-index: 2; background: transparent; }
+  .dropdown-item:hover { background: rgba(5, 196, 107, 0.08); color: #059669; }
 
   /* ── Home Hero Section ── */
   .hero-sec { position: relative; min-height: 580px; display: flex; align-items: center; justify-content: space-between; padding: 0 60px; background-size: cover; background-position: center; gap: 40px; overflow: hidden; }
@@ -84,6 +93,34 @@ const landingCSS = `
   .wci.purple { background: #0d9488; }
   .why-card h4 { font-size: 18px; color: #064e2b; font-weight: 700; margin-bottom: 12px; }
   .why-card p { font-size: 14px; color: #3a6b50; line-height: 1.6; }
+
+  /* ── Domains Gallery ── */
+  .sec-domains { padding: 60px 40px; text-align: center; background: #fff; }
+  .domain-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; text-align: left; }
+  .domain-card { height: 320px; border-radius: 16px; position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.06); cursor: pointer; border: 1px solid rgba(0,0,0,0.05); }
+  .dc-img { position: absolute; inset: 0; background-position: center; background-size: cover; background-repeat: no-repeat; transition: transform 0.6s cubic-bezier(0.16,1,0.3,1); }
+  .domain-card:hover .dc-img { transform: scale(1.06); }
+  .dc-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 40%, rgba(8,30,19,0.85) 100%); display: flex; flex-direction: column; justify-content: flex-end; padding: 24px; color: #fff; transition: background 0.4s ease; }
+  .domain-card:hover .dc-overlay { background: linear-gradient(180deg, rgba(8,30,19,0.2) 20%, rgba(8,30,19,0.95) 100%); }
+  .dc-overlay h4 { font-size: 20px; font-weight: 800; margin-bottom: 8px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+  .dc-overlay p { font-size: 13px; font-weight: 500; color: #d1fae5; line-height: 1.5; opacity: 0; transform: translateY(10px); transition: opacity 0.4s ease, transform 0.4s ease; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+  .domain-card:hover .dc-overlay p { opacity: 1; transform: translateY(0); }
+
+  /* ── Domain Details Interface ── */
+  .domain-details-page { background: #fafafa; min-height: 80vh; padding-bottom: 60px; }
+  .dd-header { background: linear-gradient(135deg, #1e3a8a, #3b82f6); padding: 40px 60px; color: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+  .dd-body { display: flex; padding: 40px 60px; gap: 40px; align-items: flex-start; }
+  .dd-sidebar { width: 320px; background: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); padding: 20px 0; border: 1px solid rgba(0,0,0,0.05); flex-shrink: 0; }
+  .dd-nav-item { padding: 16px 24px; color: #334155; font-weight: 600; font-size: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; border-left: 3px solid transparent; }
+  .dd-nav-item:hover { background: #f8fafc; color: #16a34a; }
+  .dd-nav-item.active { color: #16a34a; background: #f0fdf4; border-left-color: #16a34a; }
+  .dd-arrow { font-size: 18px; color: #94a3b8; }
+  .dd-nav-group { padding: 10px 0; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; margin: 10px 0; }
+  .dd-nav-label { padding: 0 24px 10px; font-size: 13px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+  .dd-nav-subitem { padding: 10px 24px 10px 40px; color: #475569; font-size: 14px; cursor: pointer; display: flex; justify-content: space-between; font-weight: 500; transition: color 0.1s;}
+  .dd-nav-subitem:hover { color: #16a34a; }
+  .dd-nav-subitem.active { color: #16a34a; font-weight: 700; }
+  .dd-content { flex-grow: 1; background: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); padding: 40px; border: 1px solid rgba(0,0,0,0.05); }
 
   /* ── Workflow Stages ── */
   .sec-wf { padding: 60px 40px 80px; text-align: center; background: #d5f0db; }
