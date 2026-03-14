@@ -28,7 +28,7 @@ export const PPHome = ({ user, apps }) => {
 
 export const NewApp = ({ user, onAdd, notify }) => {
     const [step, setStep] = useState(1);
-    const [f, setF] = useState({ cat: "", sector: "", name: "", loc: "", area: "", invest: "", desc: "", docs: [], pm: "upi", upi: "" });
+    const [f, setF] = useState({ cat: "", sector: "", name: "", loc: "", area: "", invest: "", desc: "", docs: [], pm: "upi", upi: "", pdfFiles: [] });
     const [paid, setPaid] = useState(false);
     const fee = f.cat === "Category A" ? 75000 : f.cat === "Category B1" ? 45000 : 30000;
     const steps = ["Category & Sector", "Project Details", "Documents", "Fee Payment", "Submit"];
@@ -70,6 +70,34 @@ export const NewApp = ({ user, onAdd, notify }) => {
                         </div>
                         <div><label style={{ fontSize: 11, fontWeight: 600, color: "#64748b", display: "block", marginBottom: 5, textTransform: "uppercase" }}>Total Investment (₹ Crore)</label><input className="input" type="number" value={f.invest} onChange={e => setF(p => ({ ...p, invest: e.target.value }))} placeholder="450" /></div>
                         <div><label style={{ fontSize: 11, fontWeight: 600, color: "#64748b", display: "block", marginBottom: 5, textTransform: "uppercase" }}>Project Description</label><textarea className="input" rows={4} value={f.desc} onChange={e => setF(p => ({ ...p, desc: e.target.value }))} placeholder="Describe the project..." style={{ resize: "vertical" }} /></div>
+                        {/* PDF Attachment Section */}
+                        <div>
+                            <label style={{ fontSize: 11, fontWeight: 600, color: "#64748b", display: "block", marginBottom: 5, textTransform: "uppercase" }}>Attach Project PDFs <span style={{ fontWeight: 400, textTransform: "none" }}>(Max 5 files, 10MB each)</span></label>
+                            <div
+                                onClick={() => document.getElementById('pdf-upload-input').click()}
+                                onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = "#1e56c2"; e.currentTarget.style.background = "#eff6ff"; }}
+                                onDragLeave={e => { e.currentTarget.style.borderColor = "#dce3ef"; e.currentTarget.style.background = "#fafbfc"; }}
+                                onDrop={e => { e.preventDefault(); e.currentTarget.style.borderColor = "#dce3ef"; e.currentTarget.style.background = "#fafbfc"; const files = Array.from(e.dataTransfer.files).filter(file => file.type === 'application/pdf'); if (files.length) setF(p => ({ ...p, pdfFiles: [...p.pdfFiles, ...files].slice(0, 5) })); }}
+                                style={{ border: "2px dashed #dce3ef", borderRadius: 12, padding: "24px 20px", textAlign: "center", cursor: "pointer", background: "#fafbfc", transition: "all 0.2s" }}
+                            >
+                                <input id="pdf-upload-input" type="file" accept=".pdf" multiple style={{ display: "none" }} onChange={e => { const files = Array.from(e.target.files); if (files.length) setF(p => ({ ...p, pdfFiles: [...p.pdfFiles, ...files].slice(0, 5) })); e.target.value = ''; }} />
+                                <div style={{ fontSize: 32, marginBottom: 8 }}>📄</div>
+                                <div style={{ fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 4 }}>Drop PDF files here or <span style={{ color: "#1e56c2", textDecoration: "underline" }}>browse</span></div>
+                                <div style={{ fontSize: 11, color: "#94a3b8" }}>Supports: EIA Reports, DPRs, NOCs, Site Plans, Feasibility Reports</div>
+                            </div>
+                            {f.pdfFiles.length > 0 && (
+                                <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 6 }}>
+                                    {f.pdfFiles.map((file, idx) => (
+                                        <div key={idx} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", background: "#eff6ff", borderRadius: 8, border: "1px solid #bfdbfe" }}>
+                                            <Ic n="doc" s={14} c="#2563eb" />
+                                            <span style={{ flex: 1, fontSize: 13, fontWeight: 500, color: "#1e40af", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{file.name}</span>
+                                            <span style={{ fontSize: 11, color: "#64748b", flexShrink: 0 }}>{(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                                            <button onClick={e => { e.stopPropagation(); setF(p => ({ ...p, pdfFiles: p.pdfFiles.filter((_, i) => i !== idx) })); }} style={{ background: "#fee2e2", border: "none", borderRadius: 6, padding: "4px 8px", cursor: "pointer", fontSize: 11, color: "#dc2626", fontWeight: 700 }}>✕</button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>}
                 {step === 3 && <div className="slide-up">

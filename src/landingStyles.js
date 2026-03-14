@@ -53,6 +53,14 @@ const landingCSS = `
   .dropdown-item { position: relative; padding: 12px 24px; cursor: pointer; color: #064e2b; font-weight: 600; font-size: 15px; transition: all 0.2s; display: flex; align-items: center; gap: 12px; z-index: 2; background: transparent; }
   .dropdown-item:hover { background: rgba(5, 196, 107, 0.08); color: #059669; }
 
+  /* ── Nav Dropdown (Dashboard) ── */
+  .nav-dropdown-wrapper { position: relative; display: inline-block; }
+  .nav-dropdown { display: none; position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: #fff; border-radius: 14px; box-shadow: 0 8px 36px rgba(0,0,0,0.14); padding: 8px 0; z-index: 300; min-width: 210px; animation: slideUpFade 0.2s ease forwards; }
+  .nav-dropdown::before { content: ''; position: absolute; top: -6px; left: 50%; transform: translateX(-50%) rotate(45deg); width: 12px; height: 12px; background: #fff; box-shadow: -2px -2px 4px rgba(0,0,0,0.02); }
+  .nav-dropdown-wrapper:hover .nav-dropdown { display: block; }
+  .nav-dd-item { padding: 11px 20px; cursor: pointer; color: #334155; font-weight: 600; font-size: 13px; transition: all 0.15s; display: flex; align-items: center; gap: 8px; }
+  .nav-dd-item:hover { background: linear-gradient(90deg, rgba(5,196,107,0.1), transparent); color: #059669; padding-left: 24px; }
+
   /* ── Home Hero Section ── */
   .hero-sec { position: relative; min-height: 580px; display: flex; align-items: center; justify-content: space-between; padding: 0 60px; background-size: cover; background-position: center; gap: 40px; overflow: hidden; }
   .hero-overlay { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(8,30,19,0.85) 0%, rgba(8,30,19,0.5) 60%, transparent 100%); z-index: 2; }

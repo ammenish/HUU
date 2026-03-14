@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import landingCSS from './landingStyles.js';
 import { apiLogin, apiFetchClearanceStats } from './api.js';
+import { DashboardHub, ECCRZDashboard, FCDashboard, WLCDashboard, CAMPADashboard } from './PublicDashboards.jsx';
 
 // Inject landing page styles
 const lpStyle = document.createElement("style");
@@ -161,7 +162,16 @@ const LandingPage = ({ onLogin }) => {
                 <nav className="nav-links">
                     <span className={`nav-item ${tab === "Home" ? "active" : ""}`} onClick={() => setTab("Home")}>Home</span>
                     <span className={`nav-item ${tab === "About" ? "active" : ""}`} onClick={() => setTab("About")}>About</span>
-                    <span className={`nav-item ${tab === "Dashboard" ? "active" : ""}`} onClick={() => setTab("Dashboard")}>Dashboard</span>
+                    <div className="nav-dropdown-wrapper">
+                        <span className={`nav-item ${["Dashboard","ECCRZ","FC","WLC","CAMPA"].includes(tab) ? "active" : ""}`} onClick={() => setTab("Dashboard")}>Dashboard ˅</span>
+                        <div className="nav-dropdown">
+                            <div className="nav-dd-item" onClick={() => { setTab("Dashboard"); window.scrollTo(0,0); }}>🏠 Dashboard Hub</div>
+                            <div className="nav-dd-item" onClick={() => { setTab("ECCRZ"); window.scrollTo(0,0); }}>🌍 EC / CRZ MIS</div>
+                            <div className="nav-dd-item" onClick={() => { setTab("FC"); window.scrollTo(0,0); }}>🌲 Forest Clearance</div>
+                            <div className="nav-dd-item" onClick={() => { setTab("WLC"); window.scrollTo(0,0); }}>🐾 Wildlife Clearance</div>
+                            <div className="nav-dd-item" onClick={() => { setTab("CAMPA"); window.scrollTo(0,0); }}>₹ National CAMPA</div>
+                        </div>
+                    </div>
                     <span className={`nav-item ${tab === "Contact" ? "active" : ""}`} onClick={() => setTab("Contact")}>Contact</span>
                     <span className={`nav-item ${tab === "Clearance" ? "active" : ""}`} onClick={() => setTab("Clearance")}>Clearance ˅</span>
                     <div className="nav-actions">
@@ -378,17 +388,11 @@ const LandingPage = ({ onLogin }) => {
             }
 
             {/* ── Additional Tabs ── */}
-            {
-                tab === "Dashboard" && (
-                    <div className="about-body" style={{ minHeight: "60vh", display: "flex", justifyContent: "center", alignItems: "center", textAligh: "center" }}>
-                        <div style={{ textAlign: "center" }}>
-                            <h2 style={{ fontSize: 32, color: "#0c3320", marginBottom: 16 }}>Public Dashboard</h2>
-                            <p style={{ color: "#2d5a3f", fontSize: 16, maxWidth: 600, margin: "0 auto", lineHeight: 1.6 }}>Track real-time statistics, active projects, and clearance statuses across different sectors and states right from here.</p>
-                            <button className="btn-get" style={{ margin: "30px auto 0" }} onClick={() => setTab("Home")}>Return Home</button>
-                        </div>
-                    </div>
-                )
-            }
+            {tab === "Dashboard" && <DashboardHub onNavigate={(t) => { setTab(t); window.scrollTo(0,0); }} />}
+            {tab === "ECCRZ" && <ECCRZDashboard onBack={() => setTab("Dashboard")} />}
+            {tab === "FC" && <FCDashboard onBack={() => setTab("Dashboard")} />}
+            {tab === "WLC" && <WLCDashboard onBack={() => setTab("Dashboard")} />}
+            {tab === "CAMPA" && <CAMPADashboard onBack={() => setTab("Dashboard")} />}
             {
                 tab === "Contact" && (
                     <div className="about-body" style={{ minHeight: "60vh", display: "flex", justifyContent: "center", alignItems: "center", textAlign: "center" }}>
